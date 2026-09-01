@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Hologram</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #010b20;
+    color: #dffaff;
+}
+
+/* =========================================================
+   OCEAN BACKGROUND
+========================================================= */
+
+body {
+    position: relative;
+    background:
+        radial-gradient(
+            ellipse at 50% 110%,
+            #063b70 0%,
+            #021d45 35%,
+            #010b20 75%,
+            #000713 100%
+        );
+}
+
+/* Moving water layers */
+
+.ocean {
+    position: absolute;
+    inset: -20%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.wave {
+    position: absolute;
+    width: 160%;
+    height: 45%;
+    left: -30%;
+    border-radius: 50%;
+    opacity: .18;
+    filter: blur(25px);
+    background:
+        repeating-radial-gradient(
+            ellipse at center,
+            transparent 0px,
+            transparent 35px,
+            rgba(0, 174, 255, .35) 40px,
+            transparent 48px
+        );
+    animation: oceanMove 15s ease-in-out infinite alternate;
+}
+
+.wave:nth-child(1) {
+    top: 5%;
+    transform: rotate(-5deg);
+}
+
+.wave:nth-child(2) {
+    top: 35%;
+    animation-duration: 20s;
+    animation-delay: -5s;
+    transform: rotate(8deg);
+    opacity: .12;
+}
+
+.wave:nth-child(3) {
+    top: 70%;
+    animation-duration: 17s;
+    animation-delay: -8s;
+    transform: rotate(-10deg);
+    opacity: .1;
+}
+
+@keyframes oceanMove {
+    0% {
+        transform: translateX(-5%) rotate(-5deg) scale(1);
+    }
+    50% {
+        transform: translateX(5%) rotate(4deg) scale(1.08);
+    }
+    100% {
+        transform: translateX(-3%) rotate(-7deg) scale(1.02);
+    }
+}
+
+/* Caustic light from above */
+
+.caustics {
+    position: absolute;
+    top: -10%;
+    left: 0;
+    width: 100%;
+    height: 55%;
+    background:
+        repeating-linear-gradient(
+            110deg,
+            transparent 0px,
+            rgba(0, 190, 255, .04) 35px,
+            rgba(0, 220, 255, .15) 55px,
+            transparent 90px
+        );
+    filter: blur(12px);
+    opacity: .7;
+    animation: causticMove 9s ease-in-out infinite alternate;
+}
+
+@keyframes causticMove {
+    from {
+        transform: translateX(-4%) skewX(-3deg);
+    }
+
+    to {
+        transform: translateX(5%) skewX(4deg);
+    }
+}
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+.particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #5eeeff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #00d9ff;
+    animation: floatParticle linear infinite;
+}
+
+@keyframes floatParticle {
+    from {
+        transform: translateY(110vh);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: .8;
+    }
+
+    80% {
+        opacity: .8;
+    }
+
+    to {
+        transform: translateY(-10vh);
+        opacity: 0;
+    }
+}
+
+/* =========================================================
+   MAIN SCENE
+========================================================= */
+
+.scene {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    perspective: 1200px;
+}
+
+/* =========================================================
+   HOLOGRAM PROJECTOR
+========================================================= */
+
+.projector {
+    position: absolute;
+    left: 50%;
+    bottom: 5%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 55px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 208, 255, .65);
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(0, 220, 255, .5),
+            rgba(0, 90, 180, .25) 45%,
+            transparent 70%
+        );
+    box-shadow:
+        0 0 20px rgba(0, 200, 255, .8),
+        inset 0 0 25px rgba(0, 180, 255, .6);
+    z-index: 4;
+}
+
+.projector::before,
+.projector::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(0, 220, 255, .55);
+}
+
+.projector::before {
+    width: 190px;
+    height: 32px;
+}
+
+.projector::after {
+    width: 100px;
+    height: 18px;
+}
+
+/* =========================================================
+   HOLOGRAM BEAM
+========================================================= */
+
+.beam {
+    position: absolute;
+    left: 50%;
+    bottom: 7%;
+    width: 430px;
+    height: 69%;
+    transform: translateX(-50%);
+    z-index: 1;
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            to top,
+            rgba(0, 210, 255, .55),
+            rgba(0, 160, 255, .15) 45%,
+            transparent
+        );
+
+    clip-path: polygon(
+        43% 100%,
+        57% 100%,
+        72% 0%,
+        28% 0%
+    );
+
+    filter: blur(5px);
+    opacity: .75;
+
+    animation: beamWaver 3s ease-in-out infinite alternate;
+}
+
+@keyframes beamWaver {
+    0% {
+        transform: translateX(-50%) skewX(-1deg);
+        opacity: .65;
+    }
+
+    50% {
+        transform: translateX(-50%) skewX(2deg);
+        opacity: .8;
+    }
+
+    100% {
+        transform: translateX(-50%) skewX(-2deg);
+        opacity: .7;
+    }
+}
+
+/* Beam lines */
+
+.beam::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 8px,
+            rgba(130, 240, 255, .3) 9px,
+            transparent 11px
+        );
+
+    animation: scan 1.5s linear infinite;
+}
+
+@keyframes scan {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 50px;
+    }
+}
+
+/* =========================================================
+   CENTRAL HEXAGON
+========================================================= */
+
+.core {
+    position: absolute;
+    top: 13%;
+    left: 50%;
+    width: 370px;
+    height: 370px;
+    transform:
+        translateX(-50%)
+        rotateX(4deg);
+
+    z-index: 5;
+
+    animation: hologramFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes hologramFloat {
+
+    0% {
+        transform:
+            translateX(-50%)
+            translateY(0)
+            skewX(0deg);
+    }
+
+    30% {
+        transform:
+            translateX(-50%)
+            translateY(-3px)
+            skewX(.4deg);
+    }
+
+    55% {
+        transform:
+            translateX(-50%)
+            translateY(2px)
+            skewX(-.5deg);
+    }
+
+    100% {
+        transform:
+            translateX(-50%)
+            translateY(-1px)
+            skewX(.2deg);
+    }
+}
+
+/* Hexagon */
+
+.hexagon {
+    position: absolute;
+    inset: 0;
+
+    clip-path: polygon(
+        25% 3%,
+        75% 3%,
+        100% 50%,
+        75% 97%,
+        25% 97%,
+        0 50%
+    );
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0, 220, 255, .18),
+            rgba(0, 100, 255, .06)
+        );
+
+    box-shadow: 0 0 40px #00d9ff;
+}
+
+/* Hexagonal borders using pseudo layers */
+
+.hexagon::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+
+    clip-path: inherit;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0, 238, 255, .9),
+            rgba(0, 80, 255, .4),
+            rgba(0, 240, 255, .9)
+        );
+
+    z-index: -1;
+}
+
+.hexagon::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+
+    clip-path: inherit;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 150, 255, .18),
+            rgba(0, 50, 130, .1)
+        );
+}
+
+/* Hex grid */
+
+.hex-grid {
+    position: absolute;
+    inset: 12px;
+
+    clip-path: polygon(
+        25% 3%,
+        75% 3%,
+        100% 50%,
+        75% 97%,
+        25% 97%,
+        0 50%
+    );
+
+    background-image:
+        radial-gradient(
+            rgba(100, 230, 255, .5) 1px,
+            transparent 1px
+        );
+
+    background-size: 9px 9px;
+    opacity: .16;
+}
+
+/* Core text */
+
+.core-content {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    z-index: 3;
+}
+
+.core-label {
+    font-size: 13px;
+    letter-spacing: 7px;
+    color: #83edff;
+    margin-bottom: 15px;
+}
+
+.core-title {
+    font-size: 39px;
+    font-weight: 700;
+    letter-spacing: 4px;
+
+    color: #ecfdff;
+
+    text-shadow:
+        0 0 8px #00cfff,
+        0 0 25px #008cff,
+        0 0 45px rgba(0, 200, 255, .7);
+}
+
+.core-line {
+    width: 110px;
+    height: 1px;
+    margin-top: 22px;
+
+    background: #63eaff;
+    box-shadow: 0 0 15px #00d9ff;
+}
+
+/* =========================================================
+   DEPARTMENT CAROUSEL
+========================================================= */
+
+.carousel-area {
+    position: absolute;
+
+    left: 50%;
+    top: 57%;
+
+    width: min(950px, 95vw);
+    height: 260px;
+
+    transform: translateX(-50%);
+
+    z-index: 8;
+
+    perspective: 1000px;
+    cursor: grab;
+}
+
+.carousel-area.dragging {
+    cursor: grabbing;
+}
+
+.carousel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    transform-style: preserve-3d;
+
+    transition: transform .65s cubic-bezier(.2,.8,.2,1);
+}
+
+/* Department cards */
+
+.department {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 165px;
+    height: 190px;
+
+    margin-left: -82.5px;
+    margin-top: -95px;
+
+    padding: 20px;
+
+    border: 1px solid rgba(0, 218, 255, .55);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(0, 110, 190, .18),
+            rgba(0, 20, 65, .35)
+        );
+
+    backdrop-filter: blur(8px);
+
+    clip-path: polygon(
+        12% 0,
+        88% 0,
+        100% 10%,
+        100% 90%,
+        88% 100%,
+        12% 100%,
+        0 90%,
+        0 10%
+    );
+
+    box-shadow:
+        inset 0 0 20px rgba(0, 210, 255, .08),
+        0 0 20px rgba(0, 180, 255, .15);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    transition:
+        opacity .5s,
+        filter .5s,
+        transform .5s;
+}
+
+/* Card glowing border */
+
+.department::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    border: 1px solid rgba(0, 220, 255, .35);
+
+    clip-path: inherit;
+
+    pointer-events: none;
+}
+
+.department-number {
+    font-size: 11px;
+    color: #4ddfff;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+}
+
+.department-icon {
+    width: 40px;
+    height: 40px;
+
+    border: 1px solid #32dfff;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-bottom: 15px;
+
+    font-size: 18px;
+
+    box-shadow:
+        0 0 12px rgba(0, 220, 255, .5);
+}
+
+.department-name {
+    font-size: 20px;
+    letter-spacing: 3px;
+    font-weight: 600;
+
+    color: #c9f8ff;
+
+    text-shadow: 0 0 10px #00bfff;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.nav {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+
+    padding: 0 20px;
+
+    pointer-events: none;
+}
+
+.nav button {
+    pointer-events: auto;
+
+    width: 50px;
+    height: 50px;
+
+    border: 1px solid rgba(0, 220, 255, .6);
+
+    background: rgba(0, 80, 150, .15);
+
+    color: #7eeeff;
+
+    font-size: 25px;
+
+    cursor: pointer;
+
+    transition: .25s;
+
+    box-shadow: 0 0 15px rgba(0, 180, 255, .2);
+}
+
+.nav button:hover {
+    background: rgba(0, 200, 255, .2);
+    box-shadow:
+        0 0 25px rgba(0, 220, 255, .7);
+}
+
+/* =========================================================
+   LOWER HUD
+========================================================= */
+
+.bottom-ui {
+    position: absolute;
+
+    bottom: 4%;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 10;
+
+    text-align: center;
+
+    color: #54dfff;
+
+    font-size: 11px;
+
+    letter-spacing: 5px;
+}
+
+.bottom-line {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bottom-line::before,
+.bottom-line::after {
+    content: "";
+    width: 50px;
+    height: 1px;
+
+    background: #28dfff;
+
+    box-shadow: 0 0 8px #00cfff;
+}
+
+.drag-text {
+    margin-top: 10px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    opacity: .65;
+}
+
+/* =========================================================
+   HOLOGRAM GLITCH
+========================================================= */
+
+.glitch {
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+
+    opacity: .08;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 3px,
+            rgba(255,255,255,.4) 4px,
+            transparent 5px
+        );
+
+    animation: glitchScan 1.7s linear infinite;
+}
+
+@keyframes glitchScan {
+    from {
+        transform: translateY(-20%);
+    }
+
+    to {
+        transform: translateY(20%);
+    }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width: 700px) {
+
+    .core {
+        width: 280px;
+        height: 280px;
+        top: 10%;
+    }
+
+    .core-title {
+        font-size: 27px;
+    }
+
+    .carousel-area {
+        top: 55%;
+    }
+
+    .department {
+        width: 130px;
+        height: 160px;
+
+        margin-left: -65px;
+        margin-top: -80px;
+    }
+
+    .department-name {
+        font-size: 16px;
+    }
+
+    .projector {
+        width: 200px;
+    }
+
+    .bottom-ui {
+        bottom: 2%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     OCEAN
+===================================================== -->
+
+<div class="ocean">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+</div>
+
+<div class="caustics"></div>
+
+<div class="particles" id="particles"></div>
+
+<!-- =====================================================
+     MAIN SCENE
+===================================================== -->
+
+<div class="scene">
+
+    <!-- Hologram beam -->
+
+    <div class="beam">
+        <div class="glitch"></div>
+    </div>
+
+    <!-- =================================================
+         CENTRAL ENGINEERING HEXAGON
+    ================================================== -->
+
+    <div class="core">
+
+        <div class="hexagon">
+            <div class="hex-grid"></div>
+        </div>
+
+        <div class="core-content">
+
+            <div class="core-label">
+                FIELD
+            </div>
+
+            <div class="core-title">
+                ENGINEERING
+            </div>
+
+            <div class="core-line"></div>
+
+        </div>
+
+    </div>
+
+    <!-- =================================================
+         DEPARTMENT CAROUSEL
+    ================================================== -->
+
+    <div class="carousel-area" id="carouselArea">
+
+        <div class="carousel" id="carousel">
+
+            <div class="department">
+                <div class="department-number">01</div>
+                <div class="department-icon">&lt;/&gt;</div>
+                <div class="department-name">CSE</div>
+            </div>
+
+            <div class="department">
+                <div class="department-number">02</div>
+                <div class="department-icon">◉</div>
+                <div class="department-name">ECE</div>
+            </div>
+
+            <div class="department">
+                <div class="department-number">03</div>
+                <div class="department-icon">ϟ</div>
+                <div class="department-name">EEE</div>
+            </div>
+
+            <div class="department">
+                <div class="department-number">04</div>
+                <div class="department-icon">⚗</div>
+                <div class="department-name">CHE</div>
+            </div>
+
+            <div class="department">
+                <div class="department-number">05</div>
+                <div class="department-icon">⚙</div>
+                <div class="department-name">MECH</div>
+            </div>
+
+            <div class="department">
+                <div class="department-number">06</div>
+                <div class="department-icon">⌂</div>
+                <div class="department-name">CIVIL</div>
+            </div>
+
+        </div>
+
+        <!-- Navigation -->
+
+        <div class="nav">
+
+            <button id="prev">
+                ‹
+            </button>
+
+            <button id="next">
+                ›
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- =================================================
+         PROJECTOR
+    ================================================== -->
+
+    <div class="projector"></div>
+
+    <!-- =================================================
+         BOTTOM UI
+    ================================================== -->
+
+    <div class="bottom-ui">
+
+        <div class="bottom-line">
+            <span>DRAG TO EXPLORE</span>
+        </div>
+
+        <div class="drag-text">
+            SELECT A DEPARTMENT
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+const particleContainer =
+    document.getElementById("particles");
+
+for(let i = 0; i < 90; i++){
+
+    const particle =
+        document.createElement("div");
+
+    particle.className = "particle";
+
+    particle.style.left =
+        Math.random() * 100 + "%";
+
+    particle.style.animationDuration =
+        (5 + Math.random() * 12) + "s";
+
+    particle.style.animationDelay =
+        -(Math.random() * 15) + "s";
+
+    particle.style.opacity =
+        Math.random();
+
+    particleContainer.appendChild(particle);
+}
+
+
+/* =========================================================
+   CAROUSEL
+========================================================= */
+
+const carousel =
+    document.getElementById("carousel");
+
+const area =
+    document.getElementById("carouselArea");
+
+const departments =
+    document.querySelectorAll(".department");
+
+const total =
+    departments.length;
+
+
+/*
+    Radius of the circular department carousel.
+*/
+
+const radius = 390;
+
+let currentIndex = 0;
+
+
+/* Position departments around 3D circle */
+
+function setupCarousel(){
+
+    departments.forEach((card, index) => {
+
+        const angle =
+            (360 / total) * index;
+
+        card.style.transform =
+            `rotateY(${angle}deg) translateZ(${radius}px)`;
+
+    });
+
+    updateCarousel();
+
+}
+
+
+/* Rotate carousel */
+
+function updateCarousel(){
+
+    const rotation =
+        -(360 / total) * currentIndex;
+
+    carousel.style.transform =
+        `rotateY(${rotation}deg)`;
+
+}
+
+
+/* =========================================================
+   NEXT / PREVIOUS
+========================================================= */
+
+document
+    .getElementById("next")
+    .addEventListener("click", () => {
+
+        currentIndex++;
+
+        if(currentIndex >= total)
+            currentIndex = 0;
+
+        updateCarousel();
+
+    });
+
+
+document
+    .getElementById("prev")
+    .addEventListener("click", () => {
+
+        currentIndex--;
+
+        if(currentIndex < 0)
+            currentIndex = total - 1;
+
+        updateCarousel();
+
+    });
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener("keydown", e => {
+
+    if(e.key === "ArrowRight"){
+
+        currentIndex++;
+
+        if(currentIndex >= total)
+            currentIndex = 0;
+
+        updateCarousel();
+
+    }
+
+    if(e.key === "ArrowLeft"){
+
+        currentIndex--;
+
+        if(currentIndex < 0)
+            currentIndex = total - 1;
+
+        updateCarousel();
+
+    }
+
+});
+
+
+/* =========================================================
+   MOUSE DRAG
+========================================================= */
+
+let dragging = false;
+let startX = 0;
+let dragDistance = 0;
+
+area.addEventListener("mousedown", e => {
+
+    dragging = true;
+
+    startX = e.clientX;
+
+    dragDistance = 0;
+
+    area.classList.add("dragging");
+
+});
+
+
+window.addEventListener("mousemove", e => {
+
+    if(!dragging)
+        return;
+
+    dragDistance =
+        e.clientX - startX;
+
+});
+
+
+window.addEventListener("mouseup", () => {
+
+    if(!dragging)
+        return;
+
+    dragging = false;
+
+    area.classList.remove("dragging");
+
+    if(Math.abs(dragDistance) > 40){
+
+        if(dragDistance < 0){
+
+            currentIndex++;
+
+            if(currentIndex >= total)
+                currentIndex = 0;
+
+        }else{
+
+            currentIndex--;
+
+            if(currentIndex < 0)
+                currentIndex = total - 1;
+
+        }
+
+        updateCarousel();
+
+    }
+
+});
+
+
+/* =========================================================
+   TOUCH SUPPORT
+========================================================= */
+
+let touchStart = 0;
+
+area.addEventListener("touchstart", e => {
+
+    touchStart =
+        e.touches[0].clientX;
+
+}, {passive:true});
+
+
+area.addEventListener("touchend", e => {
+
+    const touchEnd =
+        e.changedTouches[0].clientX;
+
+    const distance =
+        touchEnd - touchStart;
+
+    if(Math.abs(distance) > 40){
+
+        if(distance < 0){
+
+            currentIndex++;
+
+            if(currentIndex >= total)
+                currentIndex = 0;
+
+        }else{
+
+            currentIndex--;
+
+            if(currentIndex < 0)
+                currentIndex = total - 1;
+
+        }
+
+        updateCarousel();
+
+    }
+
+});
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+setupCarousel();
+
+</script>
+
+</body>
+</html>
